@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+
+  movie-api:
+    image: node:latest
+    container_name: movie-api-docker
+    volumes:
+      - ./:/home/app
+    environment:
+      PORT: 3000
+    working_dir: /home/app
+    command: bash -c "node server.js"
+    ports:
+      - 8080:3000
+    
+  db:
+    image: mysql:8.0.16 
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data_model:/docker-entrypoint-initdb.d
