@@ -10,7 +10,7 @@ services:
     environment:
       PORT: 3000
     working_dir: /home/app
-    command: bash -c "node server.js"
+    command: bash -c "npm start"
     ports:
       - 8080:3000
     
