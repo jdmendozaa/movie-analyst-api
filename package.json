@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "start": "NODE_ENV=dev && nodemon server.js"
+    "start": "NODE_ENV=dev && nodemon --legacy-watch server.js"
   },
   "repository": {
     "type": "git",
