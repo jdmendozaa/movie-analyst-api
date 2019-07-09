@@ -4,10 +4,10 @@ var app = express();
 var mysql = require("mysql");
 
 db_config = {
-  host     : process.env.DB_HOST || 'host.docker.internal',
-  user     : process.env.DB_USER || 'root',
-  password : process.env.DB_PASS || 'root',
-  database : process.env.DB_NAME || 'movie_db',
+  host     : process.env.DB_HOST,
+  user     : process.env.DB_USER,
+  password : process.env.DB_PASS,
+  database : process.env.DB_NAME,
  
  };
 
@@ -129,6 +129,6 @@ app.get('/pending', function(req, res, next) {
 });
 
 console.log("server listening through port: " + process.env.PORT);
-// Launch our API Server and have it listen on port 3000.
-app.listen(process.env.PORT || 3000);
+// Launch our API Server and have it listen on specified port .
+app.listen(process.env.PORT);
 module.exports = app;
