@@ -1,9 +1,14 @@
+'use strict';
+
 // Get our dependencies
 var express = require('express');
 var app = express();
 var mysql = require("mysql");
+var os = require('os');
+var ifaces = os.networkInterfaces();
 
-db_config = {
+
+var db_config = {
   host     : process.env.DB_HOST,
   user     : process.env.DB_USER,
   password : process.env.DB_PASS,
@@ -12,6 +17,34 @@ db_config = {
  };
 
 var connection;
+
+function getIpAdresses(){
+
+  var ipAdresses= "";
+  Object.keys(ifaces).forEach(function (ifname) {
+    var alias = 0;
+  
+    ifaces[ifname].forEach(function (iface) {
+      if ('IPv4' !== iface.family || iface.internal !== false) {
+        // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
+        return;
+      }
+  
+      if (alias >= 1) {
+        // this single interface has multiple ipv4 addresses
+        ipAdresses += ifname + ': ' + alias, iface.address ;
+      } else {
+        // this interface has only one ipv4 adress
+        ipAdresses += ifname+ ': ' + iface.address;
+  
+      }
+      ++alias;
+    });
+    
+  });
+  
+  return ipAdresses;
+};
 
 function handleDisconnect() {
   connection = mysql.createConnection(db_config); // Recreate the connection, since
@@ -127,6 +160,13 @@ app.get('/pending', function(req, res, next) {
     }
  });
 });
+
+app.get('/ip', function(req, res, next) {   
+  
+  var ip = getIpAdresses();
+  res.json(ip);
+});
+
 
 console.log("server listening through port: " + process.env.PORT);
 // Launch our API Server and have it listen on specified port .
