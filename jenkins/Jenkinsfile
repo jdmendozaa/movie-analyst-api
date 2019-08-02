@@ -15,12 +15,6 @@ pipeline {
             steps {
                 sh 'npm test'
             }
-            post {
-                always {
-                    sh 'tar -cvf test-results.tar mochawesome-report/'
-                    archiveArtifacts artifacts: 'test-results.tar', fingerprint: true
-                }
-            }
         }
 
         stage('Build') {
@@ -33,6 +27,12 @@ pipeline {
                     archiveArtifacts artifacts: 'dist.tar', fingerprint: true
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            junit 'test-results.xml'
         }
     }
 }

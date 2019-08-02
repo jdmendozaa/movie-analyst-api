@@ -4,7 +4,7 @@
   "description": "Backend API",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test --reporter mochawesome",
+    "test": "mocha test --reporter mocha-junit-reporter",
     "start": "NODE_ENV=dev && nodemon --legacy-watch server.js",
     "build": "rm -rf dist && webpack --mode development"
   },
@@ -30,7 +30,7 @@
     "chai-http": "^2.0.1",
     "copy-webpack-plugin": "^5.0.4",
     "mocha": "^3.3.0",
-    "mochawesome": "^4.0.1",
+    "mocha-junit-reporter": "^1.23.1",
     "nodemon": "^1.19.1",
     "should": "^11.2.1",
     "source-map-loader": "^0.2.4",
