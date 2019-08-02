@@ -16,7 +16,7 @@ describe('API', () => {
   describe('/GET home', () => {
       it('it should GET any reply', (done) => {
         chai.request(server)
-            .get('/')
+            .get('/dfsd')
             .end((err, res) => {
                 res.should.have.status(200);
               done();
