@@ -1,0 +1,38 @@
+pipeline {
+    agent {
+        docker {
+            image 'node:12.6.0' 
+        }
+    }
+    stages {
+        stage('Install dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'npm test'
+            }
+            post {
+                always {
+                    sh 'tar -cvf test-results.tar mochawesome-report/'
+                    archiveArtifacts artifacts: 'test-results.tar', fingerprint: true
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'npm run build'
+            }
+            post {
+                success {
+                    sh 'tar -cvf dist.tar dist/ package.json package-lock.json'
+                    archiveArtifacts artifacts: 'dist.tar', fingerprint: true
+                }
+            }
+        }
+    }
+}
