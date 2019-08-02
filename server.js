@@ -168,7 +168,7 @@ app.get('/ip', function(req, res, next) {
 });
 
 
-console.log("server listening through port: " + process.env.PORT);
+console.log("server listening through port:  " + process.env.PORT);
 // Launch our API Server and have it listen on specified port .
 app.listen(process.env.PORT);
 module.exports = app;
