@@ -4,8 +4,9 @@
   "description": "Backend API",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
-    "start": "NODE_ENV=dev && nodemon --legacy-watch server.js"
+    "test": "mocha test --reporter mochawesome",
+    "start": "NODE_ENV=dev && nodemon --legacy-watch server.js",
+    "build": "rm -rf dist && webpack --mode development"
   },
   "repository": {
     "type": "git",
@@ -24,13 +25,18 @@
     "mysql": "^2.14.1"
   },
   "devDependencies": {
+    "awesome-typescript-loader": "^5.2.1",
     "chai": "^3.5.0",
     "chai-http": "^2.0.1",
+    "copy-webpack-plugin": "^5.0.4",
     "mocha": "^3.3.0",
-    "mocha-jenkins-reporter": "^0.3.8",
-    "mocha-junit-reporter": "^1.13.0",
+    "mochawesome": "^4.0.1",
     "nodemon": "^1.19.1",
     "should": "^11.2.1",
-    "supertest": "^3.0.0"
+    "source-map-loader": "^0.2.4",
+    "supertest": "^3.0.0",
+    "webpack": "^4.39.0",
+    "webpack-cli": "^3.3.6",
+    "webpack-node-externals": "^1.7.2"
   }
 }
