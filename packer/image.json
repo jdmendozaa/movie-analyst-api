@@ -1,7 +1,8 @@
 {
     "variables": {
       "aws_access_key": "",
-      "aws_secret_key": ""
+      "aws_secret_key": "",
+      "password": "123123"
     },
   
     "provisioners": [
@@ -14,9 +15,9 @@
               "/usr/bin/apt-get update",
               "/usr/bin/apt-get -y install ansible",
               "mkdir /home/ubuntu/node-app",
-              "chown ubuntu:ubuntu /home/ubuntu/node-app",
-              "mkdir /home/ubuntu/data_model",
-              "chown ubuntu:ubuntu /home/ubuntu/data_model"
+              "chown -R ubuntu:ubuntu /home/ubuntu/node-app",
+              "mkdir /home/ubuntu/node-app/data_model",
+              "chown -R ubuntu:ubuntu /home/ubuntu/node-app/data_model"
           ]
       },
       {
@@ -26,12 +27,22 @@
       },
       {
         "type": "file",
-        "source": "./data_model/",
-        "destination": "/home/ubuntu/node-app/data_model"
+        "source": "./data_model/table_creation_and_inserts.sql",
+        "destination": "/home/ubuntu/node-app/data_model/table_creation_and_inserts.sql"
       },
       {
         "type": "ansible-local",
-        "playbook_file": "packer/ansible-playbook.yml"
+        "playbook_file": "packer/ansible-playbook-mysql.yml",
+        "extra_arguments": [
+          "--extra-vars", "new_password={{user `password`}}"
+        ]
+      },
+      {
+        "type": "ansible-local",
+        "playbook_file": "packer/ansible-playbook-node.yml",
+        "extra_arguments": [
+          "--extra-vars", "password='{{user `password`}}'"
+        ]
       }
     ],
   
@@ -40,15 +51,7 @@
       "access_key": "{{user `aws_access_key`}}",
       "secret_key": "{{user `aws_secret_key`}}",
       "region": "us-east-2",
-      "source_ami_filter": {
-        "filters": {
-          "virtualization-type": "hvm",
-          "name": "ubuntu/images/*ubuntu-trusty-14.04-amd64-server-*",
-          "root-device-type": "ebs"
-        },
-        "owners": ["099720109477"],
-        "most_recent": true
-      },
+      "source_ami": "ami-05c1fa8df71875112",
       "instance_type": "t2.micro",
       "ssh_username": "ubuntu",
       "ami_name": "movie-analyst-back-AMI {{timestamp}}",

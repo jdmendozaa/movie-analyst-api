@@ -1,0 +1,73 @@
+---
+- hosts: all
+  remote_user: ubuntu
+  vars:
+    mysql:
+        user: root
+        old_password: root
+        new_password: "{{ new_password }}"
+        privileges: "*.*:ALL,GRANT"
+        hosts:
+          - "{{ ansible_hostname }}"  
+          - "127.0.0.1"
+          - "::1"
+          - "localhost"
+  tasks:
+    - name: MySQL | install mysql packages
+      become: yes
+      apt:
+        package: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+        - mysql-server=5.7.*
+        - python-mysqldb
+      tags:
+        - mysql
+
+    - name: Remove all anonymous user accounts
+      become: yes
+      mysql_user:
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        name: ""
+        host_all: yes
+        state: absent
+      tags:
+        - mysql
+
+    - name: Update "root" user password and grant all permissions for all hosts
+      become: yes
+      mysql_user:
+        login_user: "{{ mysql.user }}"
+        login_password: "{{ mysql.old_password }}"
+        host: "{{ item }}"
+        check_implicit_admin: yes
+        name: "{{ mysql.user }}"
+        password: "{{ mysql.new_password }}"
+        priv: "*.*:ALL,GRANT"
+        state: present
+      with_items:
+        - "{{ mysql.hosts }}"
+    
+    - name: Restart MySQL
+      become: yes
+      service:
+        name: mysql
+        state: restarted
+        enabled: yes
+
+    - name: create database movie_db
+      mysql_db:
+        login_user: "{{ mysql.user }}"
+        login_password: "{{ mysql.new_password }}"
+        name: movie_db
+        state: present
+
+    - name: Restore database
+      mysql_db:
+        login_user: "{{ mysql.user }}"
+        login_password: "{{ mysql.new_password }}"
+        name: movie_db
+        state: import
+        target: /home/ubuntu/node-app/data_model/table_creation_and_inserts.sql
