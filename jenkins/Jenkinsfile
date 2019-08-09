@@ -1,23 +1,47 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:12.6.0' 
-        }
+
+    agent none
+
+    environment {
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_DEFAULT_REGION    = credentials('AWS_DEFAULT_REGION')
     }
+
     stages {
+        
         stage('Install dependencies') {
+
+            agent { 
+                docker{
+                    image 'node:12.8.0-alpine'
+                } 
+            }
             steps {
                 sh 'npm install'
             }
         }
 
         stage('Test') {
+
+            agent { 
+                docker{
+                    image 'node:12.8.0-alpine'
+                } 
+            }
             steps {
                 sh 'npm test'
             }
+            
         }
 
-        stage('Build') {
+        stage('Build code') {
+
+            agent { 
+                docker{
+                    image 'node:12.8.0-alpine'
+                } 
+            }
             steps {
                 sh 'npm run build'
             }
@@ -28,11 +52,52 @@ pipeline {
                 }
             }
         }
+
+        stage('Build packer image') {
+
+            agent { 
+                docker{
+                    image 'hashicorp/packer:1.4.2'
+                    args '--entrypoint=\'\''
+                } 
+            }
+            steps {
+                sh 'packer build packer/image.json'
+            }
+        }
+
+        stage('Build infrastructure') {
+
+            agent { 
+                docker{
+                    image 'hashicorp/terraform:0.12.6'
+                    args '--entrypoint=\'\''
+                }  
+            }
+
+            steps {
+
+                sh 'mkdir -p terraform'
+                dir("terraform"){
+                    git url: 'https://github.com/jdmendozaa/Ramp-Up-Code.git',
+                    credentialsId: '34135794-d9b9-493e-a885-2d35b6d972b8'
+                    dir("terraform"){
+                        sh 'terraform init'
+                        sh 'terraform apply -auto-approve'
+                    }
+                }
+            }
+        }
+        
     }
 
     post {
+        
         always {
-            junit 'test-results.xml'
-        } 
+            node('master') {
+                junit 'test-results.xml'
+            }
+            
+        }
     }
 }
